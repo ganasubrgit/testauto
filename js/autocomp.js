@@ -2,7 +2,10 @@ var htmlString = "";
 var btn = document.getElementById("myInput");
 
 var ourRequest = new XMLHttpRequest();
-ourRequest.open('GET', 'https://learnwebcode.github.io/json-example/animals-1.json');
+//ourRequest.open('GET', 'https://learnwebcode.github.io/json-example/animals-1.json');
+//Elastic URL
+ourRequest.open('GET', 'http://ganlx0005.hq.target.com:9200/autocomplete/product/_search?q=name:D*');
+
 ourRequest.onload = function() {
   if (ourRequest.status >= 200 && ourRequest.status < 400) {
     var ourData = JSON.parse(ourRequest.responseText);
@@ -18,10 +21,11 @@ ourRequest.onerror = function() {
 
 ourRequest.send();
 
+///render
 function renderHTML(data) {
-  const newData = data.map(function(x) { return `${x.name} the ${x.species}`})
-  console.log(newData)
-  autocomplete(document.getElementById("myInput"), newData);
+const newData = data.hits.hits.map(function(x) { return x.name})
+console.log(newData) 
+autocomplete(document.getElementById("myInput"), newData);
 }
 
 function autocomplete(inp, arr) {
