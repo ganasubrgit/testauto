@@ -3,7 +3,6 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" media="all" href="style.css">
-<script type="text/javascript" src="js/autocomp.js"></script>
 </head>     
 <body>
 <center>
@@ -11,7 +10,7 @@
   <table>
   <tr><th><h1>Autocomplete Search Suggestions</h1></th></tr>
 <!--Make sure the form has the autocomplete function switched off:-->
-<tr><td><br><form autocomplete="off" action="https://www.bestbuy.com/site/searchpage.jsp?">
+<tr><td><br><form autocomplete="off" name="form1" action="https://www.bestbuy.com/site/searchpage.jsp?">
   <div class="autocomplete" style="width:500px;">
     <input id="myInput" type="text" name="st" placeholder="Search">
   </div>
@@ -20,5 +19,6 @@
   <font size="3" color="Gray">Start typing...</font>
 </form></td></tr></table>
 </center>
+<script type="text/javascript" src="js/autocomp.js"></script>
 </body>
 </html>
