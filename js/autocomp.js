@@ -1,20 +1,13 @@
-//Parse JSON and render to autocomplete
-function renderHTML(data) {
-  var newData = []
-    for(var i = 0; i < data.hits.hits.length; i++){
-      newData[i] = data.hits.hits[i]._source.name
-    }
-  autocomplete(document.getElementById("myInput"), newData);
-  console.log(newData)
-}
+autocomplete(document.getElementById("myInput"));
 
 ///Good code below to make search list////
-function autocomplete(inp, arr) {
+function autocomplete(inp) {
     /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
     var currentFocus;
     /*execute a function when someone writes in the text field:*/
     inp.addEventListener("input", function(e) {
+    
         var a, b, i, val = this.value;
         /*close any already open lists of autocompleted values*/
         closeAllLists();
@@ -26,28 +19,35 @@ function autocomplete(inp, arr) {
         a.setAttribute("class", "autocomplete-items");
         /*append the DIV element as a child of the autocomplete container:*/
         this.parentNode.appendChild(a);
-        /*for each item in the array...*/
-        for (i = 0; i < arr.length; i++) {
-          /*check if the item starts with the same letters as the text field value:*/
-          if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
-            /*create a DIV element for each matching element:*/
-            b = document.createElement("DIV");
-            /*make the matching letters bold:*/
-            b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
-            b.innerHTML += arr[i].substr(val.length);
-            /*insert a input field that will hold the current array item's value:*/
-            b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
-            /*execute a function when someone clicks on the item value (DIV element):*/
-            b.addEventListener("click", function(e) {
-                /*insert the value for the autocomplete text field:*/
-                inp.value = this.getElementsByTagName("input")[0].value;
-                /*close the list of autocompleted values,
-                (or any other open lists of autocompleted values:*/
-                closeAllLists();
-            });
-            a.appendChild(b);
+
+        callelastic(val, (data) => {
+          var arr = []
+          for(var i = 0; i < data.hits.hits.length; i++){
+            arr.push(data.hits.hits[i]._source.name)
           }
-        }
+          /*for each item in the array...*/
+          for (i = 0; i < arr.length; i++) {
+            /*check if the item starts with the same letters as the text field value:*/
+            if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+              /*create a DIV element for each matching element:*/
+              b = document.createElement("DIV");
+              /*make the matching letters bold:*/
+              b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+              b.innerHTML += arr[i].substr(val.length);
+              /*insert a input field that will hold the current array item's value:*/
+              b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+              /*execute a function when someone clicks on the item value (DIV element):*/
+              b.addEventListener("click", function(e) {
+                  /*insert the value for the autocomplete text field:*/
+                  inp.value = this.getElementsByTagName("input")[0].value;
+                  /*close the list of autocompleted values,
+                  (or any other open lists of autocompleted values:*/
+                  closeAllLists();
+              });
+              a.appendChild(b);
+            }
+          }
+        })
     });
     /*execute a function presses a key on the keyboard:*/
     inp.addEventListener("keydown", function(e) {
@@ -107,14 +107,14 @@ function autocomplete(inp, arr) {
   }
 
 
-//Elasticsearch request 
-  var textField = document.getElementById("myInput");
-  if(textField)
-  {
-    textField.addEventListener("input", (x) => callelastic(textField.value))
-  }
+// //Elasticsearch request 
+//   var textField = document.getElementById("myInput");
+//   if(textField)
+//   {
+//     textField.addEventListener("keydown", (x) => callelastic(textField.value))
+//   }
 
-function callelastic(data){
+function callelastic(data, sendData ){
   var htmlString = "";
   const URL = 'http://ganlx0005:9200/autocomplete/product/_search?q=name:' + data
   var ourRequest = new XMLHttpRequest();
@@ -128,7 +128,7 @@ function callelastic(data){
       var t1 = performance.now();
       console.log("Time took " + (t1 - t0) + " milliseconds.")
       
-      renderHTML(ourData);
+      sendData(ourData);
   
     } else {
       console.log("We connected to the server, but it returned an error.");
