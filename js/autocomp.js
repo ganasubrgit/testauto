@@ -1,6 +1,5 @@
 autocomplete(document.getElementById("myInput"));
-
-///Good code below to make search list////
+//Code for search list////
 function autocomplete(inp) {
     /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
@@ -20,7 +19,8 @@ function autocomplete(inp) {
         /*append the DIV element as a child of the autocomplete container:*/
         this.parentNode.appendChild(a);
 
-        callelastic(val, (data) => {
+        //Call Elasticsearch
+        callelastic(val).then( (data) => {
           var arr = []
           for(var i = 0; i < data.hits.hits.length; i++){
             arr.push(data.hits.hits[i]._source.name)
@@ -47,6 +47,8 @@ function autocomplete(inp) {
               a.appendChild(b);
             }
           }
+        }).catch(x => {
+          console.log("something broke")
         })
     });
     /*execute a function presses a key on the keyboard:*/
@@ -106,34 +108,30 @@ function autocomplete(inp) {
     });
   }
 
-
-// //Elasticsearch request 
-//   var textField = document.getElementById("myInput");
-//   if(textField)
-//   {
-//     textField.addEventListener("keydown", (x) => callelastic(textField.value))
-//   }
-
-function callelastic(data, sendData ){
-  var htmlString = "";
-  const URL = 'http://ganlx0005:9200/autocomplete/product/_search?q=name:' + data
-  var ourRequest = new XMLHttpRequest();
-  //Performance check
-  var t0 = performance.now();
-  ourRequest.open('GET', URL);
-  ourRequest.onload = function() {
-    if (ourRequest.status >= 200 && ourRequest.status < 400) {
-      var ourData = JSON.parse(ourRequest.responseText);
-      //check performance
-      var t1 = performance.now();
-      console.log("Time took " + (t1 - t0) + " milliseconds.")
-      
-      sendData(ourData);
+function callelastic(data ){
+  return new Promise((resolve,reject)=> {
+    var URi = 'http://ganlx0005:9200/autocomplete/product/_search?q=name:' + data + '*'
+    var URL = encodeURI(URi)
+    var ourRequest = new XMLHttpRequest();
+    //Performance check
+    var t0 = performance.now();
+    ourRequest.open('GET', URL);
+    ourRequest.onload = function() {
+      if (ourRequest.status >= 200 && ourRequest.status < 400) {
+        var ourData = JSON.parse(ourRequest.responseText);
+        //check performance
+        var t1 = performance.now();
+        document.getElementById('speed').innerHTML =  "&nbsp&nbsp Time took " + (t1 - t0) + " milliseconds.";
+        
+        resolve(ourData);
+    
+      } else {
+        console.log("We connected to the server, but it returned an error."); 
+        reject()
+      }
+    };
+    ourRequest.onerror = reject
+    ourRequest.send();
+  })
   
-    } else {
-      console.log("We connected to the server, but it returned an error.");
-    }
-  };
-  ourRequest.onerror = function() {console.log("Connection error");};
-  ourRequest.send();
   }
